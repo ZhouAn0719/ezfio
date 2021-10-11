@@ -36,7 +36,6 @@ import glob
 import json
 import os
 import platform
-import pwd
 import re
 import shutil
 import socket
@@ -684,6 +683,7 @@ def RunTest(iops_log, seqrand, wmix, bs, threads, iodepth, runtime):
             jobfile.write("end_fsync=0\n")
             jobfile.write("group_reporting=1\n")
             jobfile.write("direct=1\n")
+            jobfile.write("ramp_time=5\n")
             jobfile.write("filename=" + str(dr) + "\n")
             jobfile.write("size=" + str(testcapacity) + "G\n")
             jobfile.write("time_based=1\n")
@@ -823,6 +823,7 @@ def RunTest(iops_log, seqrand, wmix, bs, threads, iodepth, runtime):
 
     cmdline = cmdline + ['--output-format=' + str(fioOutputFormat)]
 
+    # skip test if bs size lower than device physical block (sector) size.
     # There are some NVME drives with 4k physical and logical out there.
     # Check that we can actually do this size IO, OTW return 0 for all
     skiptest = False
