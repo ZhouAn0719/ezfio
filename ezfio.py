@@ -683,7 +683,6 @@ def RunTest(iops_log, seqrand, wmix, bs, threads, iodepth, runtime):
             jobfile.write("end_fsync=0\n")
             jobfile.write("group_reporting=1\n")
             jobfile.write("direct=1\n")
-            #jobfile.write("ramp_time=5\n")
             jobfile.write("filename=" + str(dr) + "\n")
             jobfile.write("size=" + str(testcapacity) + "G\n")
             jobfile.write("time_based=1\n")
@@ -935,7 +934,7 @@ def DefineTests():
     threadslist = (1, 2, 4, 8, 16, 32, 64, 128, 256)
 
     shorttime = 120  # Runtime of point tests
-    longtime = 600  # Runtime of long-running tests
+    longtime = 3000  # Runtime of long-running tests
     if quickie:
         shorttime = int(shorttime / 30)
         longtime = int(longtime / 30)
