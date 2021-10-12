@@ -683,7 +683,7 @@ def RunTest(iops_log, seqrand, wmix, bs, threads, iodepth, runtime):
             jobfile.write("end_fsync=0\n")
             jobfile.write("group_reporting=1\n")
             jobfile.write("direct=1\n")
-            jobfile.write("ramp_time=5\n")
+            #jobfile.write("ramp_time=5\n")
             jobfile.write("filename=" + str(dr) + "\n")
             jobfile.write("size=" + str(testcapacity) + "G\n")
             jobfile.write("time_based=1\n")
@@ -930,15 +930,15 @@ def DefineTests():
     """Generate the work list for the main worker into OC."""
     global oc, quickie, fastPrecond
     # What we're shmoo-ing across
-    bslist = (512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144)
-    qdlist = (1, 2, 4, 8, 16, 32, 64, 128, 256)
+    bslist = (512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288)
+    qdlist = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024)
     threadslist = (1, 2, 4, 8, 16, 32, 64, 128, 256)
 
     shorttime = 120  # Runtime of point tests
-    longtime = 1200  # Runtime of long-running tests
+    longtime = 600  # Runtime of long-running tests
     if quickie:
-        shorttime = int(shorttime / 10)
-        longtime = int(longtime / 10)
+        shorttime = int(shorttime / 30)
+        longtime = int(longtime / 30)
 
     def AddTest(name, seqrand, writepct, blocksize, threads, qdperthread,
                 iops_log, runtime, desc, cmdline):
@@ -1011,38 +1011,38 @@ def DefineTests():
                 '256', False, '', 'Sequential Preconditioning Pass 2',
                 lambda o: {SequentialConditioning()})
 
-    testname = "Sequential Read Tests with Queue Depth=1 by Block Size"
+    testname = "Sequential Read Tests with Queue Depth=128 by Block Size"
     seqrand = "Seq"
     wmix = 0
-    threads = 1
-    iodepth = 128
+    threads = 4
+    iodepth = 32
     runtime = shorttime
     iops_log = False
     AddTestBSShmoo()
 
-    testname = "Sequential Write Tests with Queue Depth=1 by Block Size"
+    testname = "Sequential Write Tests with Queue Depth=128 by Block Size"
     seqrand = "Seq"
     wmix = 100
-    threads = 1
-    iodepth = 128
+    threads = 4
+    iodepth = 32
     runtime = shorttime
     iops_log = False
     AddTestBSShmoo()
 
-    testname = "Sustained Multi-Threaded Random Read Testsby Block Size"
+    testname = "Rand Read Tests with Queue Depth=128 by Block Size"
     seqrand = "Rand"
     wmix = 0
-    threads = 8
-    iodepth = 16
+    threads = 4
+    iodepth = 32
     runtime = shorttime
     iops_log = False
     AddTestBSShmoo()
 
-    testname = "Sustained Multi-Threaded Random Write Tests by Block Size"
+    testname = "Rand Write Tests with Queue Depth=128 by Block Size"
     seqrand = "Rand"
     wmix = 100
-    threads = 8
-    iodepth = 16
+    threads = 4
+    iodepth = 32
     runtime = shorttime
     iops_log = False
     AddTestBSShmoo()
@@ -1057,32 +1057,86 @@ def DefineTests():
                 '256', False, '', 'Random Preconditioning',
                 lambda o: {RandomConditioning()})
 
-    testname = "Sustained 4KB Random Read Tests by Number of Threads"
+    testname = "4KB Random Read Tests by Number of Threads"
     seqrand = "Rand"
     wmix = 0
     bs = 4096
     runtime = shorttime
     iops_log = False
-    iodepth = 1
-    AddTestThreadsShmoo()
+    threads = 1
+    AddTestQDShmoo()
 
-    testname = "Sustained 4KB Random Write Tests by Number of Threads"
+    testname = "4KB Random Write Tests by Number of Threads"
     seqrand = "Rand"
     wmix = 100
     bs = 4096
     runtime = shorttime
     iops_log = False
-    iodepth = 1
-    AddTestThreadsShmoo()
+    threads = 1
+    AddTestQDShmoo()
 
-    testname = "Sustained 4KB Random mixed 30% Write Tests by Threads"
+    testname = "4KB Random mixed 30% Write Tests by Threads"
     seqrand = "Rand"
     wmix = 30
     bs = 4096
     runtime = shorttime
     iops_log = False
-    iodepth = 1
-    AddTestThreadsShmoo()
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "8KB Random Read Tests by iodepth"
+    seqrand = "Rand"
+    wmix = 0
+    bs = 8192
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "8KB Random Write Tests by Number of Threads"
+    seqrand = "Rand"
+    wmix = 100
+    bs = 8192
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "8KB Random mixed 30% Write Tests by Threads"
+    seqrand = "Rand"
+    wmix = 30
+    bs = 8192
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "256KB Seq Read Tests by Number of Threads"
+    seqrand = "Seq"
+    wmix = 0
+    bs = 262144
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "256KB Seq Write Tests by Number of Threads"
+    seqrand = "Seq"
+    wmix = 100
+    bs = 262144
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
+
+    testname = "256KB Seq mixed 30% Write Tests by Threads"
+    seqrand = "Seq"
+    wmix = 30
+    bs = 262144
+    runtime = shorttime
+    iops_log = False
+    threads = 1
+    AddTestQDShmoo()
 
     testname = "Sustained Perf Stability Test - 4KB Random 30% Write"
     AddTest(testname, 'Preparation', '', '', '', '', '', '', '',
@@ -1092,10 +1146,23 @@ def DefineTests():
     bs = 4096
     runtime = longtime
     iops_log = True
-    iodepth = 1
-    threads = 128
+    iodepth = 32
+    threads = 4
     DoAddTest(testname, seqrand, wmix, bs, threads, iodepth, testname,
               iops_log, runtime)
+
+    # testname = "Sustained Perf Stability Test - 256KB SEQ 30% Write"
+    # AddTest(testname, 'Preparation', '', '', '', '', '', '', '',
+    #         lambda o: {AppendFile(o['name'], testcsv)})
+    # seqrand = "Rand"
+    # wmix = 30
+    # bs = 262144
+    # runtime = longtime
+    # iops_log = True
+    # iodepth = 32
+    # threads = 4
+    # DoAddTest(testname, seqrand, wmix, bs, threads, iodepth, testname,
+    #           iops_log, runtime)
 
 
 def RunAllTests():
@@ -1312,7 +1379,7 @@ AAAAAAAAAAAAAAAAAAAAAG1pbWV0eXBlUEsFBgAAAAABAAEANgAAAFQAAAAAAA==
         zasrc.close()
         zadst.close()
 
-    def CombineExceedanceCSV(qdList, testType, testWpct, testBS, testIOdepth, suffix):
+    def CombineExceedanceCSV(qdList, testType, testWpct, testBS, suffix):
         """Merge multiple exceedance CSVs into a single output file.
 
         Column merge multiple CSV files into a single one.  Complicated by
@@ -1324,23 +1391,23 @@ AAAAAAAAAAAAAAAAAAAAAG1pbWV0eXBlUEsFBgAAAAABAAEANgAAAFQAAAAAAA==
         CSVInfoHeader(csv)
         line1 = ""
         line2 = ""
-        for qd in qdList:
+        for th, qd in qdList:
             line1 = line1 + \
-                ("QD%d Read Exceedance,,QD%d Write Exceedance,,," % (qd, qd))
+                ("QD%d Read Exceedance,,QD%d Write Exceedance,,," % (th * qd, th * qd))
             line2 = line2 + "rdusec,rdpct,wrusec,wrpct,,"
         AppendFile(line1, csv)
         AppendFile(line2, csv)
 
         files = []
-        for qd in qdList:
+        for th, qd in qdList:
             try:
                 r = open(TestName(testType, testWpct, testBS,
-                                  qd, testIOdepth) + ".exc.read.csv")
+                                  th, qd) + ".exc.read.csv")
             except:
                 r = None
             try:
                 w = open(TestName(testType, testWpct, testBS,
-                                  qd, testIOdepth) + ".exc.write.csv")
+                                  th, qd) + ".exc.write.csv")
             except:
                 w = None
             files.append([r, w])
@@ -1378,7 +1445,7 @@ AAAAAAAAAAAAAAAAAAAAAG1pbWV0eXBlUEsFBgAAAAABAAEANgAAAFQAAAAAAA==
     # Potentially add exceedance data if we have it
     if fioOutputFormat == "json+":
         csv = CombineExceedanceCSV(
-            [1, 4, 16, 32], "Rand", 30, 4096, 1, "exceedance30")
+            [(1, 1), (1, 4), (1, 16), (1, 32)], "Rand", 30, 4096, "exceedance30")
         xmlsrc = ReplaceSheetWithCSV_regex("Exceedance", csv, xmlsrc)
     # Remove draw:image references to deleted binary previews
     xmlsrc = re.sub("<draw:image.*?/>", "", xmlsrc, flags=re.DOTALL)
